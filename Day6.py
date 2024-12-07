@@ -33,8 +33,8 @@ class Dir(Enum):
 
 def Part1(map,pointer):
     direction = Dir.N
-    repeatPoint = None
-    repeatDirection = None
+    repeat = 0
+    repeatDict = {}
     # Step until exit
     while not((direction == Dir.N and pointer[0] == 0)\
         or (direction == Dir.S and pointer[0] == len(map)-1)\
@@ -42,6 +42,7 @@ def Part1(map,pointer):
         or (direction == Dir.E and pointer[1] == len(map[0])-1)):
         if direction == Dir.N:
             nextPoint = map[pointer[0]-1][pointer[1]]
+            repeatDict.setdefault(tuple(pointer), []).append(direction)
             if nextPoint != "#" and nextPoint != "O":
                 nextPoint = "^"
                 map[pointer[0]][pointer[1]] = "X"
@@ -49,11 +50,11 @@ def Part1(map,pointer):
             else:
                 # For part 2
                 if nextPoint == "O":
-                    repeatPoint = pointer.copy()
-                    repeatDirection = direction.value
+                    repeat += 1
                 direction = Dir((direction.value + 1) % 4)
         elif direction == Dir.S:
             nextPoint = map[pointer[0]+1][pointer[1]]
+            repeatDict.setdefault(tuple(pointer), []).append(direction)
             if nextPoint != "#" and nextPoint != "O":
                 nextPoint = "^"
                 map[pointer[0]][pointer[1]] = "X"
@@ -61,11 +62,11 @@ def Part1(map,pointer):
             else:
                 # For part 2
                 if nextPoint == "O":
-                    repeatPoint = pointer.copy()
-                    repeatDirection = direction.value
+                    repeat += 1
                 direction = Dir((direction.value + 1) % 4)
         elif direction == Dir.E:
             nextPoint = map[pointer[0]][pointer[1]+1]
+            repeatDict.setdefault(tuple(pointer), []).append(direction)
             if nextPoint != "#" and nextPoint != "O":
                 nextPoint = "^"
                 map[pointer[0]][pointer[1]] = "X"
@@ -73,11 +74,11 @@ def Part1(map,pointer):
             else:
                 # For part 2
                 if nextPoint == "O":
-                    repeatPoint = pointer.copy()
-                    repeatDirection = direction.value
+                    repeat += 1
                 direction = Dir((direction.value + 1) % 4)
         elif direction == Dir.W:
             nextPoint = map[pointer[0]][pointer[1]-1]
+            repeatDict.setdefault(tuple(pointer), []).append(direction)
             if nextPoint != "#" and nextPoint != "O":
                 nextPoint = "^"
                 map[pointer[0]][pointer[1]] = "X"
@@ -85,11 +86,10 @@ def Part1(map,pointer):
             else:
                 # For part 2
                 if nextPoint == "O":
-                    repeatPoint = pointer.copy()
-                    repeatDirection = direction.value
+                    repeat += 1
                 direction = Dir((direction.value + 1) % 4)
 
-        if pointer == repeatPoint and repeatDirection == direction.value:
+        if repeat > 0 and direction in repeatDict.get(tuple(pointer),[]):
             return -1
 
     map[pointer[0]][pointer[1]] = "X"
@@ -110,13 +110,15 @@ print(total)
 # No idea on how to do this so I will simply try and brute force it:
 # We know it can only be placed on one of the X's as these are the ways to block its path
 
+
 total = 0
 for i, rows in enumerate(afterMap):
     for j, items in enumerate(rows):
         if items == "X":
-            tempMap = map.copy()
+            tempMap = [row[:] for row in map] # Different copy needed entirely in order to prevent change of map
             tempMap[i][j] = "O"
             if Part1(tempMap,pointer) == -1:
                 total += 1
+        # print(i,j)
             
 print(total)
