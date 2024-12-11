@@ -67,13 +67,9 @@ dataDict = {}
 for i in data:
     dataDict[i] = dataDict.get(i,0) + 1
 
-import time
-start = time.time()
 for i in range(75):
     dataDict = NewBlink()
     print(i+1,"/75") # to see the speed of alogrithm
-end = time.time()
-print(end-start)
 
 total = 0
 for i in dataDict:
