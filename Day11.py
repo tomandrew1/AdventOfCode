@@ -31,7 +31,6 @@ def Blink():
             
         index += 1
         
-
 # for i in range(25):
 #     Blink()
 
@@ -42,48 +41,41 @@ def Blink():
 # Idea - dynamic programming, ie find the list of stones created when a given number is calculated
 # Then store this for each instance of numbers seen to remove repeated computations 
 # This means I am going to modify my brute force from part 1
-
 store = {0:[1]} # start with 0 to remove one of the if statements in blink
-
 # This doesn't cut down the computation enough!!
 
-# class Chain:
-#     def __init__(self,val):
-#         self._val = val
-
-
-# Part 1:
-def CheckAppearance():
-    pass
-
-def NewBlink(data):
-    newData = []
-
-    for dataVal in data:
-        if dataVal in store:
-            for items in store[dataVal]:
-                if items in appearances:
-                    appearances[items] += 1
-                else:
-                    newData.append(items)
-                    appearances[items] = 1
-        elif len(str(dataVal))%2 == 0:
-            temp1,temp2 = int( str(dataVal)[:len(str(dataVal))//2]),int( str(dataVal)[len(str(dataVal))//2:])
-            if temp1 in appearances:
-                pass
-            newData.append(temp1)
-            newData.append(temp2)
-            store[dataVal] = (temp1,temp2)
+# instead keep the data as a dict with the number of times the key has appeared and iterate that:
+# (still using the store dictionary to speed things up too)
+def NewBlink():
+    newData = {}
+    for dataKey in dataDict:
+        if dataKey in store:
+            for items in store[dataKey]:
+                newData[items] = newData.get(items,0) + dataDict.get(dataKey,0)
+        elif len(str(dataKey))%2 == 0:
+            temp1,temp2 = int( str(dataKey)[:len(str(dataKey))//2]),int( str(dataKey)[len(str(dataKey))//2:])
+            newData[temp1] = newData.get(temp1,0) + dataDict.get(dataKey,0)
+            newData[temp2] = newData.get(temp2,0) + dataDict.get(dataKey,0)
+            store[dataKey] = (temp1,temp2)
         else:
-            temp = dataVal*2024
-            newData.append(temp)
-            store[dataVal] = (temp,)
+            temp = dataKey*2024
+            newData[temp] = newData.get(temp,0) + dataDict.get(dataKey,0)
+            store[dataKey] = (temp,)
     return newData
 
-appearances = {}
+dataDict = {}
+for i in data:
+    dataDict[i] = dataDict.get(i,0) + 1
 
+import time
+start = time.time()
 for i in range(75):
-    data = NewBlink(data)
-    print(i,"/75")
+    dataDict = NewBlink()
+    print(i+1,"/75") # to see the speed of alogrithm
+end = time.time()
+print(end-start)
 
-print(len(data))
+total = 0
+for i in dataDict:
+    total += dataDict[i]
+print(total)
