@@ -82,6 +82,44 @@ def CreateSubplot(coord):
             seenPlots[coord].addPoint(newCoord)
             CreateSubplot(newCoord)
     seenPlots[coord].addPerimeter(perimeter)
+
+# Part 2
+def CountSides(plots):
+    coordsList = [x for x in seenPlots if seenPlots[x] == plots]
+
+    north = [x for x in coordsList if x[0] == 0 or rows[x[0]-1][x[1]] != plots.getPlotType()]
+    east = [x for x in coordsList if x[1] == len(rows[0])-1 or rows[x[0]][x[1]+1] != plots.getPlotType()]
+    south = [x for x in coordsList if x[0] == len(rows)-1 or rows[x[0]+1][x[1]] != plots.getPlotType()]
+    west = [x for x in coordsList if x[1] == 0 or rows[x[0]][x[1]-1] != plots.getPlotType()]
+
+    sides = 0
+    
+    index = 0
+    sides += len(north)
+    while index < len(north):
+        if (north[index][0], north[index][1]+1) in north:
+            sides -= 1
+        index += 1
+    index = 0
+    sides += len(east)
+    while index < len(east):
+        if (east[index][0]+1, east[index][1]) in east:
+            sides -= 1
+        index += 1
+    index = 0
+    sides += len(south)
+    while index < len(south):
+        if (south[index][0], south[index][1]+1) in south:
+            sides -= 1
+        index += 1
+    index = 0
+    sides += len(west)
+    while index < len(west):
+        if (west[index][0]+1, west[index][1]) in west:
+            sides -= 1
+        index += 1
+
+    return sides
     
 
 # Create all the plots and points each index to their given plot in a dictionary
@@ -100,14 +138,14 @@ plotList = set()
 for coords in seenPlots:
     plotList.add(seenPlots[coords])
 
-
 # Sum up each plots area * perimeter for the set of plots
 total = 0
 for plot in plotList:
-    print(plot.getArea(), plot.getPerimeter(), plot.getPlotType())
-    total += plot.getArea() * plot.getPerimeter()
+    # total += plot.getArea() * plot.getPerimeter()
+
+    sides = CountSides(plot)
+    total += plot.getArea() * sides
+
+    # print(sides, plot.getArea(), plot.getPerimeter(), plot.getPlotType())
 
 print(total)
-
-
-    
