@@ -3,22 +3,22 @@ import numpy as np
 file = open("Day16-Input.txt","r")
 data = file.read()
 
-# Simple case:
-data = """###############
-#.......#....E#
-#.#.###.#.###.#
-#.....#.#...#.#
-#.###.#####.#.#
-#.#.#.......#.#
-#.#.#####.###.#
-#...........#.#
-###.#.#####.#.#
-#...#.....#.#.#
-#.#.#.###.#.#.#
-#.....#...#.#.#
-#.###.#.#.#.#.#
-#S..#.....#...#
-###############"""
+# # Simple case:
+# data = """###############
+# #.......#....E#
+# #.#.###.#.###.#
+# #.....#.#...#.#
+# #.###.#####.#.#
+# #.#.#.......#.#
+# #.#.#####.###.#
+# #...........#.#
+# ###.#.#####.#.#
+# #...#.....#.#.#
+# #.#.#.###.#.#.#
+# #.....#...#.#.#
+# #.###.#.#.#.#.#
+# #S..#.....#...#
+# ###############"""
 
 # # Second example:
 # data = """#################
@@ -39,14 +39,14 @@ data = """###############
 # #S#.............#
 # #################"""
 
-# Third?:
-data = """##########
-#.......E#
-#.##.#####
-#..#.....#
-##.#####.#
-#S.......#
-##########"""
+# # Third?:
+# data = """##########
+# #.......E#
+# #.##.#####
+# #..#.....#
+# ##.#####.#
+# #S.......#
+# ##########"""
 
 mapData = [[y for y in x] for x in data.split("\n")]
 
@@ -73,11 +73,11 @@ class Node():
     def getWeight(self):
         return self._weight
 
-    def considerNewWeights(self):
-        dir = self._dir
+    def considerNewWeights(self, dir, currentWeight):
+        # dir = self._dir
         for i, nodes in enumerate(self._pointers):
             # Checks node hasn't been visited yet
-            if nodes == None: # or nodes in visited:
+            if nodes == None or i in visited.get(nodes,[]):
                 continue
             
             if i == dir:
@@ -86,10 +86,11 @@ class Node():
                 newWeight = 2001
             else:
                 newWeight = 1001
-            change = nodes.setMinWeight(self._weight + newWeight)
-            if change:
-                potentialDict[nodes] = nodes.getWeight()
-                nodes.setDir(i)
+            # nodes.setMinWeight(self._weight + newWeight)
+            # if change:
+            #     potentialDict[nodes] = nodes.getWeight()
+            #     nodes.setDir(i)
+            heapq.heappush(priority_queue, (currentWeight + newWeight, nodes, i))
 
     # Fix pointer issue, ie change pointer coords to nodes:
     def fixPointers(self):
@@ -132,25 +133,33 @@ for coords in graphNodes:
 
 root = graphNodes[start]
 
-# dir is NESW so dir+1%4 is rotation 90 clockwise
-root.setDir(1) # East initially
-root.setMinWeight(0) # no weight for start node
+# # dir is NESW so dir+1%4 is rotation 90 clockwise
+# root.setDir(1) # East initially
+# root.setMinWeight(0) # no weight for start node
+
+import heapq
+priority_queue = []
+heapq.heappush(priority_queue, (0, root, 1))  # Start root node with direction 1, ie east
 
 potentialDict = {}
-current = root # to allow the entering of the while loop
-# visited = set()
-while current.getCoords() != end:
-    print(current.getCoords())
-    # visited.add(current)
-    current.considerNewWeights()
-    # Find smallest value in potentialDict and set current to first key that has this value
-    smallest = min(potentialDict.values())
-    temp = [key for key in potentialDict if potentialDict[key] == smallest]
-    current = temp[0]
-    potentialDict.pop(current)
-    # print("COORDS:",current.getCoords(),"WEIGHT:",current.getWeight())
+currentNode = root # to allow the entering of the while loop
+visited = {}
+while currentNode.getCoords() != end:
+    currentWeight, currentNode, currentDir = heapq.heappop(priority_queue)
+
+    print("COORDS:", currentNode.getCoords(), "WEIGHT:", currentWeight)
+
+    visited.setdefault(currentNode, []).append(currentDir)
+    currentNode.considerNewWeights(currentDir, currentWeight)
+
+    # # Find smallest value in potentialDict and set current to first key that has this value
+    # smallest = min(potentialDict.values())
+    # temp = [key for key in potentialDict if potentialDict[key] == smallest]
+    # current = temp[0]
+    # potentialDict.pop(current)
+
     
-print(current.getWeight())
+print(currentWeight)
 
 
 
@@ -176,31 +185,31 @@ print(current.getWeight())
 # root = recurr(start)
 
 
-import heapq
 
-# dir is NESW so dir+1%4 is rotation 90 clockwise
-root.setDir(1) # East initially
-root.setMinWeight(0) # no weight for start node
 
-# Priority queue for nodes: (weight, node)
-priority_queue = []
-heapq.heappush(priority_queue, (0, root))  # Start node with weight 0
 
-visited = set()
+# import heapq
 
-while priority_queue:
-    current_weight, current_node = heapq.heappop(priority_queue)
+# # dir is NESW so dir+1%4 is rotation 90 clockwise
+# root.setDir(1) # East initially
+# root.setMinWeight(0) # no weight for start node
 
-    if current_node.getCoords() in visited:
-        continue
+# # Priority queue for nodes: (weight, node)
+# priority_queue = []
+# heapq.heappush(priority_queue, (0, root))  # Start node with weight 0
 
-    visited.add(current_node.getCoords())
+# visited = set()
 
-    if current_node.getCoords() == end:
-        print(current_weight)
-        break
+# while priority_queue:
+#     current_weight, current_node = heapq.heappop(priority_queue)
 
-    current_node.considerNewWeights()
-    for neighbor in current_node._pointers:
-        if neighbor and neighbor.getCoords() not in visited:
-            heapq.heappush(priority_queue, (neighbor.getWeight(), neighbor))
+    
+
+#     if current_node.getCoords() == end:
+#         print(current_weight)
+#         break
+
+#     current_node.considerNewWeights()
+#     for neighbor in current_node._pointers:
+#         if neighbor and neighbor.getCoords() not in visited:
+#             heapq.heappush(priority_queue, (neighbor.getWeight(), neighbor))
