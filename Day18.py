@@ -3,7 +3,6 @@ import heapq
 
 file = open("Day18-Input.txt","r")
 
-
 # Simple case:
 data = """5,4
 4,2
@@ -38,13 +37,9 @@ mapData = [["." for y in range(71)] for x in range(71)]
 # simple case:
 # mapData = [["." for y in range(7)] for x in range(7)]
 
-
-
-
 # print(*mapData,sep="\n")
 
 # Copied but simplified from day 16:
-
 # and in order for day 16 code to work:
 start = (0, 0)
 end = (70,70)
@@ -85,7 +80,7 @@ class Node():
     def __lt__(self, other):
         # Part 1:
         # return self.getWeight() < other.getWeight() 
-        
+
         # Part 2, idea is to change the way heap acts in order to find a path to end faster
         return (self._coords[0] + self._coords[1]) < (other._coords[0] + other._coords[1])
         
@@ -147,3 +142,10 @@ while True:
         break
 
     i += 1
+
+# Better way to do part 2 could be to use an algorithm that searches for paths along the corrupted data in order to find 
+# a path that blocks the main way from (0,0) to (70,70)
+
+# Also, a better way to find which point corrupts the path could be to do eliminations like a binary search where
+# up to the middle of the corrupted data is checked for a working path and if not then discard any above that
+# This can be repeated until the exact point where the path becomes untraverseable is found which could be O(log(n)) perhaps?
